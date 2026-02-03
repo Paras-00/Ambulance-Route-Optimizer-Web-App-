@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeRoute AI - Emergency Routing</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <!-- Lottie Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="light">
+
+    <!-- Background Canvas Container -->
+    <div id="canvas-wrapper">
+        <div id="canvas-container"></div>
+        <div id="loading" class="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-50">
+            <div class="flex flex-col items-center">
+                <span class="lucide w-12 h-12 text-blue-600 animate-spin" data-lucide="loader-2"></span>
+                <span class="mt-4 font-semibold text-blue-800">Optimizing Routes...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Header -->
+    <header>
+        <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_wgq8q1.json" background="transparent"
+            speed="1" style="width: 40px; height: 40px;" loop autoplay></lottie-player>
+        <h1 class="text-xl font-bold tracking-wide text-gray-800 dark:text-gray-100">
+            LifeRoute <span class="text-red-600">AI</span>
+        </h1>
+        <div class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></div>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            title="Toggle Theme">
+            <span class="lucide w-5 h-5 text-gray-700 dark:text-gray-200" data-lucide="moon"></span>
+        </button>
+        <button id="help-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition" title="Help">
+            <span class="lucide w-5 h-5 text-gray-700 dark:text-gray-200" data-lucide="help-circle"></span>
+        </button>
+    </header>
+
+    <!-- Floating Toggle Button (Visible on mobile or when collapsed) -->
+    <!-- <div class="toggle-panel-btn" id="toggle-panel">
+        <span class="lucide" data-lucide="menu"></span>
+    </div> -->
+
+    <!-- Left Floating Control Panel -->
+    <aside class="floating-panel" id="control-panel">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-lg font-semibold flex items-center gap-2 text-gray-800 dark:text-gray-100">
+                <span class="lucide w-5 h-5 text-red-500" data-lucide="settings-2"></span>
+                Mission Control
+            </h2>
+            <!-- <button class="text-gray-400 hover:text-gray-600"><span class="lucide" data-lucide="chevron-left"></span></button> -->
+        </div>
+
+        <!-- 1. Graph Config (Collapsible Detail) -->
+        <!-- Graph Configuration Moved to Right Panel -->
+        <div
+            class="mb-2 p-3 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-100 dark:border-blue-900/20 text-xs text-blue-700 dark:text-blue-300">
+            <span class="font-bold block mb-1">Status:</span>
+            <span id="system-status">System Operational</span>
+        </div>
+
+        <!-- 2. Simulation Controls -->
+        <div class="control-group">
+            <span class="control-label">Route Settings</span>
+
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="col-span-2">
+                    <label class="text-xs text-gray-500 mb-1 block">Source Point</label>
+                    <select id="source-node"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-800/50 text-sm"></select>
+                </div>
+                <div class="col-span-2">
+                    <label class="text-xs text-gray-500 mb-1 block">Destination Point</label>
+                    <select id="dest-node"
+                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white/50 dark:bg-gray-800/50 text-sm"></select>
+                </div>
+            </div>
+
+            <!-- Severity Toggle -->
+            <div class="bg-red-50 dark:bg-red-900/20 p-3 rounded-xl border border-red-100 dark:border-red-900/30 mb-3">
+                <span class="text-xs font-bold text-red-800 dark:text-red-400 block mb-2 uppercase">Emergency
+                    Level</span>
+                <div class="flex gap-4">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="severity" value="critical" checked class="accent-red-600">
+                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Critical (SIREN)</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="severity" value="non-critical" class="accent-blue-600">
+                        <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Standard</span>
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="findRoute()"
+                class="btn-primary w-full py-3 rounded-xl shadow-lg shadow-red-500/20 flex justify-center items-center gap-2 text-sm uppercase tracking-wide">
+                <span class="lucide" data-lucide="zap"></span> Dispatch Unit
+            </button>
+            <button onclick="findNearestHospital()"
+                class="mt-2 w-full py-2 bg-white/50 dark:bg-gray-800/50 border border-blue-200 text-blue-700 dark:text-blue-400 rounded-xl hover:bg-blue-50 transition flex justify-center items-center gap-2 text-sm font-semibold">
+                <span class="lucide w-4 h-4" data-lucide="stethoscope"></span> Find Nearest Hospital
+            </button>
+        </div>
+
+        <!-- 3. Environment -->
+        <div class="control-group">
+            <span class="control-label">Live Conditions</span>
+
+            <div class="flex items-center gap-3 mb-4">
+                <span class="lucide w-4 h-4 text-gray-500" data-lucide="car"></span>
+                <input id="traffic-slider" type="range" min="0.5" max="2" step="0.1" value="1"
+                    class="flex-1 h-1 bg-gray-300 rounded-lg appearance-none cursor-pointer">
+                <span id="traffic-value" class="text-xs font-mono font-bold w-8">1.0x</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button id="rush-hour"
+                    class="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 px-3 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1 hover:brightness-95 transition">
+                    <span class="lucide w-3 h-3" data-lucide="alert-triangle"></span> Rush Hour
+                </button>
+                <div
+                    class="flex items-center justify-center gap-2 px-3 py-2 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 rounded-lg">
+                    <input type="checkbox" id="closure-mode" class="accent-red-600 w-3 h-3">
+                    <span class="text-xs font-bold">Edit Roads</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Layer -->
+        <div class="flex items-center gap-3 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+            <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="show-map" checked class="accent-blue-600 rounded">
+                <span class="text-xs font-semibold text-gray-500">Map BG</span>
+            </label>
+            <label
+                class="cursor-pointer bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md hover:bg-gray-200 transition">
+                <span class="text-xs text-blue-600 font-medium">Upload Custom</span>
+                <input type="file" id="map-upload" accept="image/*" class="hidden">
+            </label>
+            <button onclick="downloadGraphPDF()" class="ml-auto text-gray-400 hover:text-gray-600"
+                title="Export Report">
+                <span class="lucide w-4 h-4" data-lucide="file-down"></span>
+            </button>
+        </div>
+
+    </aside>
+
+    <!-- Right Floating Info Panel -->
+    <aside class="stats-panel">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <span class="lucide w-5 h-5 text-blue-500" data-lucide="database"></span>
+            Data & Telemetry
+        </h3>
+
+        <!-- Graph Config (Now Here) -->
+        <div class="control-group mb-6">
+            <span class="control-label mb-2">City Configuration</span>
+            <textarea id="graph-input"
+                class="w-full h-48 p-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 resize-y text-xs font-mono"
+                placeholder="Graph Data..."></textarea>
+            <div class="flex gap-2 mt-2">
+                <button onclick="loadGraph()"
+                    class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-500/20">
+                    <span class="lucide w-3 h-3 inline mr-1" data-lucide="refresh-cw"></span> Load Data
+                </button>
+                <button onclick="saveGraph()"
+                    class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 py-2 rounded-lg text-xs font-bold hover:bg-gray-300 transition">
+                    <span class="lucide w-3 h-3 inline mr-1" data-lucide="save"></span> Save
+                </button>
+                <button onclick="resetGraph()"
+                    class="px-3 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg font-bold hover:bg-red-200 transition"
+                    title="Reset Default">
+                    <span class="lucide w-4 h-4" data-lucide="rotate-ccw"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="h-px bg-gray-200 dark:bg-gray-700 mb-4"></div>
+
+        <span class="control-label mb-2">Live Output</span>
+        <div id="output"
+            class="text-sm font-mono bg-white/50 dark:bg-gray-900/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700 mb-4 min-h-[100px] shadow-inner text-gray-700 dark:text-gray-300">
+            Waiting for mission data...
+        </div>
+
+        <span class="control-label mb-2">System Log</span>
+        <div id="log-panel" class="space-y-2 text-xs text-gray-500 font-mono h-32 overflow-y-auto pr-2">
+            <!-- Logs go here -->
+        </div>
+    </aside>
+
+    <!-- Toast -->
+    <div id="toast"
+        class="fixed top-6 right-6 z-50 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-xl transform translate-y-[-150%] transition-transform duration-300 flex items-center gap-3">
+        <span class="lucide text-green-400" data-lucide="check-circle"></span>
+        <span id="toast-msg">Notification</span>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-md w-full p-8 relative">
+            <button id="close-help-modal"
+                class="absolute top-4 right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition">
+                <span class="lucide w-6 h-6 text-gray-500" data-lucide="x"></span>
+            </button>
+            <div class="text-center mb-6">
+                <div
+                    class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-600 dark:text-blue-400">
+                    <span class="lucide w-8 h-8" data-lucide="info"></span>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">New LifeRoute Experience</h2>
+                <p class="text-gray-500 mt-2">Advanced City Emergency Navigation</p>
+            </div>
+            <div class="space-y-4 text-sm text-gray-600 dark:text-gray-300">
+                <div class="flex gap-3">
+                    <div
+                        class="w-8 h-8 bg-red-100 rounded-lg flex-shrink-0 flex items-center justify-center text-red-600 font-bold">
+                        1</div>
+                    <p><strong>Select Severity:</strong> Critical missions (Red) ignore traffic. Standard missions
+                        (Blue) optimize for traffic avoidance.</p>
+                </div>
+                <div class="flex gap-3">
+                    <div
+                        class="w-8 h-8 bg-green-100 rounded-lg flex-shrink-0 flex items-center justify-center text-green-600 font-bold">
+                        2</div>
+                    <p><strong>Interactive Map:</strong> Click nodes to set Start/End. Enable "Edit Roads" to close
+                        blocked streets manually.</p>
+                </div>
+                <div class="flex gap-3">
+                    <div
+                        class="w-8 h-8 bg-purple-100 rounded-lg flex-shrink-0 flex items-center justify-center text-purple-600 font-bold">
+                        3</div>
+                    <p><strong>Hospitals:</strong> Look for <span class="text-red-500 font-bold">H</span> icons. Check
+                        live ICU capacity before routing.</p>
+                </div>
+            </div>
+            <button id="close-help-btn-main" class="w-full mt-8 btn-primary py-3 rounded-xl font-bold text-sm">Got
+                it!</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Init Icons
+        lucide.createIcons();
+
+        // Help Modal Logic
+        const helpModal = document.getElementById('help-modal');
+        document.getElementById('help-btn').onclick = () => helpModal.classList.remove('hidden');
+        document.getElementById('close-help-modal').onclick = () => helpModal.classList.add('hidden');
+        document.getElementById('close-help-btn-main').onclick = () => helpModal.classList.add('hidden');
+
+        // Toast Helper
+        window.showToast = function (msg, bg) {
+            const t = document.getElementById('toast');
+            const tm = document.getElementById('toast-msg');
+            tm.innerText = msg;
+            t.style.transform = "translateY(0)";
+            setTimeout(() => t.style.transform = "translateY(-150%)", 3000);
+        }
+    </script>
+</body>
+
+</html>

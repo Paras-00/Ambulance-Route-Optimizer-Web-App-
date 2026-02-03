@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --primary-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    --bg-gradient: linear-gradient(to right bottom, #e2e8f0, #cbd5e1);
+}
+
+body.dark {
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(51, 65, 85, 0.5);
+    --bg-gradient: linear-gradient(to right bottom, #0f172a, #1e293b);
+    color: #f1f5f9;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg-gradient);
+    overflow: hidden;
+    /* Prevent scrolling, full app feel */
+    height: 100vh;
+    margin: 0;
+}
+
+/* Full screen map container */
+#canvas-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}
+
+#canvas-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Floating Header */
+header {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0.75rem 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    width: auto;
+    max-width: 90%;
+}
+
+/* Floating Control Panel */
+.floating-panel {
+    position: absolute;
+    top: 6rem;
+    left: 2rem;
+    bottom: 2rem;
+    width: 380px;
+    z-index: 10;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+}
+
+.floating-panel.collapsed {
+    transform: translateX(-110%);
+}
+
+.toggle-panel-btn {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    /* Adjust if panel is collapsed */
+    padding: 0.5rem;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    z-index: 30;
+    transition: left 0.3s ease;
+}
+
+/* Right Side Data/Info Panel */
+.stats-panel {
+    position: absolute;
+    top: 6rem;
+    right: 2rem;
+    bottom: 2rem;
+    width: 350px;
+    z-index: 10;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 3px;
+}
+
+/* Dashboard Elements */
+.control-group {
+    margin-bottom: 1.5rem;
+}
+
+.control-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.dark .control-label {
+    color: #94a3b8;
+}
+
+input[type="range"] {
+    position: relative;
+    z-index: 1;
+    /* Fix slider interaction */
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--primary-gradient);
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* Toast */
+.toast {
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Graph Config Textarea */
+#graph-input {
+    font-family: 'Fira Code', 'Monaco', monospace;
+    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.dark #graph-input {
+    background: rgba(0, 0, 0, 0.3);
+    color: #cbd5e1;
+}
