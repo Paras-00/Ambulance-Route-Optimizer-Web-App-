@@ -1,32 +1,28 @@
-# Ambulance Router Optimization
+# 🚑 Ambulance Emergency Routing Simulator
 
-A web-based application that helps find the **shortest and fastest routes for ambulances** using **DSA algorithms** like Dijkstra. Built with **HTML, CSS, and JavaScript**, the project leverages **local storage** for data persistence and allows exporting route information as **PDF** using **jsPDF** and **PDF.js**.
+A web-based simulation that demonstrates **ambulance route optimization using graph algorithms**.  
+The project visualizes shortest-path routing under varying traffic conditions for emergency response scenarios.
 
 ## Features
-- Find the shortest route for ambulances using **Dijkstra's Algorithm**.
-- Store route and patient data locally in the browser.
-- Export route information as **PDF**.
-- Interactive and responsive user interface.
-- Easy visualization of routes.
+- Shortest path routing using Dijkstra’s Algorithm
+- Traffic-weighted route simulation
+- Interactive canvas-based visualization
+- Emergency priority handling
+- Light / Dark mode UI
 
 ## Tech Stack
-- Frontend: HTML, CSS, JavaScript
-- Algorithms: Dijkstra and other graph-based algorithms
-- Libraries: jsPDF, PDF.js
-- Storage: LocalStorage
+HTML, CSS, Tailwind CSS, JavaScript, p5.js
 
-## How to Use
-1. Open `index.html` in your browser.
-2. Enter the source and destination locations for the ambulance.
-3. The app will calculate the **shortest route** using Dijkstra's algorithm.
-4. Save or export route information as a **PDF** for records.
+## Concepts
+Graph algorithms, shortest path, routing optimization, frontend simulation
 
-## Algorithms Used
-- Dijkstra's Algorithm for shortest path calculation.
-- Additional graph-based techniques for route optimization.
+# ScreenShot
 
-## Installation
-No installation required. Simply clone the repository and open `index.html` in your browser:
+<img width="1920" height="1080" alt="Screenshot 2026-02-03 184911" src="https://github.com/user-attachments/assets/3ab1cf04-6c25-4f97-8792-943ec1f06775" />
+<img width="1920" height="1080" alt="Screenshot 2026-02-03 185003" src="https://github.com/user-attachments/assets/28fa209d-ac10-46a4-b092-5d7f521ffbf3" />
 
-```bash
-git clone https://github.com/Paras-00/ambulance-router-optimization.git
+## Usage
+Clone the repository and open `index.html` in a browser.
+
+## Author
+Paras Sharma
